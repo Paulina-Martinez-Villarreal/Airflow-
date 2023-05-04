@@ -1,0 +1,40 @@
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from datetime import datetime, timedelta
+
+
+# Definimos los argumentos para la DAG
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2022, 1, 1),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5)
+}
+
+# Creamos una instancia de la DAG
+dag = DAG(
+    'my_dag',
+    default_args=default_args,
+    description='Ejemplo de DAG con un BashOperator',
+    schedule_interval=timedelta(days=1),
+)
+
+# Definimos el primer BashOperator
+task1 = BashOperator(
+    task_id='my_task_1',
+    bash_command='echo "Hola, mundo!"',
+    dag=dag
+)
+
+# Definimos el segundo BashOperator
+task2 = BashOperator(
+    task_id='my_task_2',
+    bash_command='echo "Hola, otra vez!"',
+    dag=dag
+)
+
+# Definimos la dependencia entre las tareas
+task1 >> task2
